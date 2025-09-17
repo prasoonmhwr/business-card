@@ -1,6 +1,6 @@
-import React, { Suspense, useRef, useState, useEffect } from "react";
-import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
-import { Html, useGLTF, OrbitControls, ContactShadows, Environment, useHelper } from "@react-three/drei";
+import { Suspense, useRef, useEffect } from "react";
+import { Canvas, extend, useThree } from "@react-three/fiber";
+import { Html, useGLTF, OrbitControls, ContactShadows, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import {gsap} from "gsap";
 
@@ -52,74 +52,22 @@ function LuxuryCard({ url = "public/business-card.glb" }: { url?: string }) {
   const group = useRef<any>(null);
   const { scene } = useGLTF(url) as any;
 
-  const [phase, setPhase] = useState<"idle" | "toss" | "settle">("toss");
-  const [flipped, setFlipped] = useState(false);
-
-  const pos = useRef({ y: 2, vy: 0, z: 5 ,x:1});
-  const rot = useRef({ x: -Math.PI * 0.6, vx: 0, y: -Math.PI / 2, z: 0 });
-  const scale = useRef(0.5);
+ 
 
   useEffect(() => {
-    const t = setTimeout(() => setPhase("toss"), 300);
     gsap.to(group.current.postion, {  y: 2, vy: 0, z: 5 ,x:1, duration: 1.5, ease: "power2.out" });
-    return () => clearTimeout(t);
   }, []);
 
-  // useFrame((_, dt) => {
-  //   if (!group.current) return;
-
-  //   if (phase === "toss") {
-  //     pos.current.vy -= 9.8 * dt * 0.7;
-  //     pos.current.y += pos.current.vy * dt;
-
-  //     const targetRx = 0;
-  //     const ax = (targetRx - rot.current.x) * 15;
-  //     rot.current.vx += ax * dt;
-  //     rot.current.vx *= Math.pow(0.2, dt * 60);
-  //     rot.current.x += rot.current.vx * dt;
-
-  //     if (pos.current.y <= 0.12) {
-  //       pos.current.y = 0.12;
-  //       pos.current.vy *= -0.18;
-  //       if (Math.abs(pos.current.vy) < 0.05) {
-  //         pos.current.vy = 0;
-  //         setPhase("settle");
-  //       }
-  //     }
-      
-  //   } else if (phase === "settle") {
-  //     const targetRx = flipped ? Math.PI : 0;
-  //     const rotationDiff = Math.abs(targetRx - rot.current.x);
-  //     rot.current.x += (targetRx - rot.current.x) * Math.min(1, dt * 8);
-
-  //     // Smooth flip rotation animation toward flipped state
-  //     console.log("Flipped state in settle phase:", flipped);
-  //     const targetY = -Math.PI / 2;
-      
-  //     const flipDiff = Math.abs(targetY - rot.current.y);
-  //     rot.current.y += (targetY - rot.current.y) * Math.min(1, dt * 6);
-
-  //     // Check if both rotations have settled, then set to idle
-  //     if (rotationDiff < 0.01 && flipDiff < 0.01) {
-  //       setPhase("idle");
-  //     }
-  //   }
-
-  //   group.current.position.y = pos.current.y;
-  //   group.current.rotation.x = rot.current.x;
-  //   group.current.rotation.y = rot.current.y;
-  //   group.current.scale.setScalar(scale.current);
-  // });
+  
 
   const handleClick = (event:any) => {
     const currentX = group.current.rotation.x;
-  const targetX = currentX >= Math.PI / 2 ? 0 : Math.PI;
+ 
   const tl = gsap.timeline();
     
-    // Store initial positions
+   
     const initialY = group.current.position.y;
-    const initialRotY = group.current.rotation.Y;
-    const initialRotZ = group.current.rotation.z;
+   
     
     tl
       // Toss up phase - card goes up with initial rotation
@@ -135,13 +83,7 @@ function LuxuryCard({ url = "public/business-card.glb" }: { url?: string }) {
         duration: 0.6,
         ease: "power2.out"
       }, 0) // Start at the same time as position
-      
-      // Peak moment - brief pause with maximum rotation
-      // .to(group.current.rotation, {
-      //   x: currentX + Math.PI * 2, // Additional spin at peak
-      //   duration: 0.2,
-      //   ease: "power2.out"
-      // })
+     
       
       // Fall down phase - card comes down and settles
       .to(group.current.position, {
@@ -149,13 +91,7 @@ function LuxuryCard({ url = "public/business-card.glb" }: { url?: string }) {
         duration: 0.6,
         ease: "power2.out"
       })
-      // .to(group.current.rotation, {
-      //   y: initialRotY, // Final flip position
-      //   x: targetX, // Back to original X rotation
-      //   z: initialRotZ, // Back to original Z rotation
-      //   duration: 0.6,
-      //   ease: "back.out(1.7)" // Bouncy settle effect
-      // }, "-=0.6") // Start 0.6 seconds before the end of previous animation
+     
       
       // Final settle with slight bounce
       .to(group.current.position, {
